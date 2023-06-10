@@ -11,11 +11,11 @@ def tab_calc_method(
         return '0'
     while True:
         size = len(formula_after_glue)
-        formula_after_glue, temp_base_formula, form_of_formula = connect_two_implicats(
+        formula_after_glue, temp_base_formula, form_of_formula = two_imp_connect(
             formula_after_glue, form_of_formula)
         if len(formula_after_glue[0]) == 1:
             formula_in_list = set([j for i in formula_after_glue for j in i])
-            formula_in_list = delete_extra_arguments(list(formula_in_list))
+            formula_in_list = del_extra_args(list(formula_in_list))
             formula_after_glue = formula_in_list
         formula_after_glue = delete_duplicate(formula_after_glue)
         if size == len(formula_after_glue):

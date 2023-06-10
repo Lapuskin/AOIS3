@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
 from calculation_method import *
 from tabular_calculation_method import tab_calc_method
-
+import math
 
 def print_map(map, row, column):
     print("Karnaugh Map:")
@@ -20,7 +20,7 @@ def table_method(func, table, bool_val=1):
     # создание карты
 
     map = []
-    variables_count = len(table[0]) - 1
+    variables_count = int(math.log(len(table) - 1, 2))
     vars_left = variables_count % 2
     vars_top = variables_count - (variables_count % 2)
     map_row_size = 2 ** vars_left + 1
@@ -101,7 +101,7 @@ def table_method(func, table, bool_val=1):
                     selected_area[1].append(rect)
     else:
         selected_area[1] = min_selected_area[1]
-    ltable = translate_in_pdnf(
+    ltable = in_pdnf(
         tab_calc_method(*glue_implicants(func)))
 
     # for figure in range(len(min_selected_area)):
