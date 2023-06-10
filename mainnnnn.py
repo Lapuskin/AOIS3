@@ -4,7 +4,7 @@ from tabular_calculation_method import *
 from table_method import *
 
 def main():
-    expression = "!((x1 + x2)*(!x2 + !x3))"
+    expression = "!((A + B)*(!C))"
     tree = Tree(expression)
     tree.build()
     table = Table_of_truth()
@@ -15,36 +15,15 @@ def main():
 
 def mini(table, expression):
     print("Calculation method:")
-    translate_in_pdnf(calaculation_method(expression))
+    in_pdnf(calaculation_method(expression))
     print('\n')
     print("MakKlassky method: ")
-    translate_in_pdnf(
+    in_pdnf(
         tab_calc_method(*glue_implicants(expression)))
     print('\n')
     print("Karnaugh method:")
     table_method(expression, table)
     print('\n')
-
-def analytik(table, bool_val):
-
-    snf = create_snf(table, bool_val)
-    min_snf = []
-    if snf:
-        for cur_kit_place in range(len(snf)):
-            for mapping_kit_place in range(1, len(snf)):
-                counter = 0
-                kit = []
-                for i in range(len(snf[0])):
-                    for j in range(len(snf[0])):
-                        if snf[cur_kit_place][i] == snf[mapping_kit_place][j]:
-                            counter += 1
-                            kit.append(snf[cur_kit_place][i])
-                if counter == len(snf[cur_kit_place]) - 1:
-                    min_snf.append(kit)
-    for kit in min_snf:
-        print(kit, end='')
-        print('*', end='')
-
 
 def create_snf(table, bool_val):
     snf = []

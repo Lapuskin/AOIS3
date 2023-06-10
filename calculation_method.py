@@ -18,11 +18,11 @@ def calaculation_method(formula):
     formula_after_glue_again = formula_after_glue
     while True:
         size = len(formula_after_glue_again)
-        formula_after_glue_again, base_formula, form_of_formula = connect_two_implicats(
+        formula_after_glue_again, base_formula, form_of_formula = two_imp_connect(
             formula_after_glue_again, form_of_formula)
         if len(formula_after_glue_again[0]) == 1:
             formula_in_list = set([j for i in formula_after_glue_again for j in i])
-            formula_in_list = delete_extra_arguments(list(formula_in_list))
+            formula_in_list = del_extra_args(list(formula_in_list))
             return formula_in_list
         if size == len(formula_after_glue_again):
             break
@@ -33,17 +33,17 @@ def calaculation_method(formula):
                 for i in temp_formula_after_glue_again:
                     if formula_after_glue_again.count(i) > 1:
                         formula_after_glue_again.remove(i)
-                return remove_extra_implications(formula_after_glue_again, form_of_formula)
-    return remove_extra_implications(formula_after_glue, form_of_formula)
+                return rem_extra_impl(formula_after_glue_again, form_of_formula)
+    return rem_extra_impl(formula_after_glue, form_of_formula)
 
 
-def delete_extra_arguments(formula):
-    temp_formula = deepcopy(formula)
+def del_extra_args(formula):
+    temp = deepcopy(formula)
     for i in formula:
-        if i in temp_formula and '!' + i in temp_formula:
-            temp_formula.remove(i)
-            temp_formula.remove('!' + i)
-    return [[i] for i in temp_formula]
+        if i in temp and '!' + i in temp:
+            temp.remove(i)
+            temp.remove('!' + i)
+    return [[i] for i in temp]
 
 
 def glue_implicants(formula):
@@ -65,7 +65,7 @@ def glue_implicants(formula):
             index_of_space += 1
         else:
             formula_without_extra_characters[index_of_space].append(i)
-    return connect_two_implicats(
+    return two_imp_connect(
         formula_without_extra_characters,
         form_of_formula)
 
@@ -105,25 +105,25 @@ def replace_arguments_on_0_1_pcnf(temp_formula, current_implicat, formula):
     return (temp_formula, values_of_arguments)
 
 
-def remove_extra_implications(formula, form_of_formula):
-    formula_after_removed_implicats = []
-    if len(formula) == 1 or len(formula[0]) == 1:
-        return formula
-    for i in range(len(formula)):
-        temp_formula = deepcopy(formula)
-        if form_of_formula == 'pdnf':
-            temp_formula, values_of_arguments = replace_arguments_on_0_1_pdnf(
-                temp_formula, i, formula)
+def rem_extra_impl(expr, form_of_expr):
+    after_formula = []
+    if len(expr) == 1 or len(expr[0]) == 1:
+        return expr
+    for i in range(len(expr)):
+        temp = deepcopy(expr)
+        if form_of_expr == 'pdnf':
+            temp, vals_of_args = replace_arguments_on_0_1_pdnf(
+                temp, i, expr)
         else:
-            temp_formula, values_of_arguments = replace_arguments_on_0_1_pcnf(
-                temp_formula, i, formula)
-        for j in range(len(temp_formula)):
-            for k in range(len(temp_formula[j])):
-                if temp_formula[j][k] in values_of_arguments:
-                    temp_formula[j][k] = values_of_arguments[temp_formula[j][k]]
-        if cut_back_arguments(temp_formula, form_of_formula):
-            formula_after_removed_implicats.append(formula[i])
-    return formula_after_removed_implicats
+            temp, vals_of_args = replace_arguments_on_0_1_pcnf(
+                temp, i, expr)
+        for j in range(len(temp)):
+            for z in range(len(temp[j])):
+                if temp[j][z] in vals_of_args:
+                    temp[j][z] = vals_of_args[temp[j][z]]
+        if cut_back_args(temp, form_of_expr):
+            after_formula.append(expr[i])
+    return after_formula
 
 
 def check_on_extra_implicants_pdnf(cut_back_formula):
@@ -145,60 +145,36 @@ def check_on_extra_implicants_pdnf(cut_back_formula):
 
 
 
-def connect_two_implicats(formula, form_of_formula):
-    formula_after_glue, differense, append_later, use_implicats = [], [], [], []
-    if not check_size(formula) or len(formula) == 1:
-        return  (formula, formula, form_of_formula)
-    for i in range(0, len(formula) - 1):
+def two_imp_connect(expr, form_of_expr):
+    formula_after_glue, append_later, use_implicats, differense = [], [], [], []
+    if not check_size(expr) or len(expr) == 1:
+        return  (expr, expr, form_of_expr)
+    for i in range(0, len(expr) - 1):
         formula_size = len(formula_after_glue)
-        for k in range(i + 1, len(formula)):
-            for j in range(0, len(formula[i])):
-                if formula[i][j] != formula[k][j]:
-                    differense.append((formula[i][j], formula[k][j]))
+        for k in range(i + 1, len(expr)):
+            for j in range(0, len(expr[i])):
+                if expr[i][j] != expr[k][j]:
+                    differense.append((expr[i][j], expr[k][j]))
             if len(differense) == 1 and differense[0][0][-1] == differense[0][1][-1]:
                 formula_after_glue.append(
-                    connect_arguments(formula[i], formula[k]))
-                use_implicats.append(formula[k])
+                    connect_arguments(expr[i], expr[k]))
+                use_implicats.append(expr[k])
             differense.clear()
-        if len(formula_after_glue) == formula_size and formula[i] not in use_implicats:
-            append_later.append(formula[i])
+        if len(formula_after_glue) == formula_size and expr[i] not in use_implicats:
+            append_later.append(expr[i])
     if len(formula_after_glue) == 0:
-        return (formula, formula, form_of_formula)
+        return (expr, expr, form_of_expr)
     else:
-        formula_after_glue = append_later + formula_after_glue + ([formula[-1]] \
-            if formula[-1] not in use_implicats else [])
-    return (formula_after_glue, formula, form_of_formula)
+        formula_after_glue = append_later + formula_after_glue + ([expr[-1]] \
+            if expr[-1] not in use_implicats else [])
+    return (formula_after_glue, expr, form_of_expr)
 
 
-def check_on_extra_implicants_pcnf(cut_back_formula):
+def check_on_extra_pcnf(cut_back_formula):
     for i in cut_back_formula:
         if i[0] != '!' and '!' + i in cut_back_formula:
             return True
     return False
-
-
-def translate_in_pcnf(formula):
-    output_fomula = []
-    if isinstance(formula, str):
-        print(formula)
-        return
-    elif len(formula) == 0:
-        print(0)
-        return
-    if len(formula[0]) == 1:
-        output_fomula.append('(')
-    for i in formula:
-        if len(i) == 1:
-            implicat = f'{" + ".join(i)}*'
-        else:
-            implicat = f'({" + ".join(i)})*'
-        output_fomula.append(implicat)
-    if len(formula[0]) == 1:
-        output_fomula[-1] = output_fomula[-1][:-1] + ')'
-        print(''.join(output_fomula))
-    else:
-        print(''.join(output_fomula)[:-1])
-
 
 def logic_and(first_argument, second_argument):
     if first_argument == second_argument:
@@ -218,67 +194,67 @@ def logic_and(first_argument, second_argument):
 
 
 
-def cut_back_arguments(temp_formula, form_of_formula):
+def cut_back_args(temp, form):
     formula_after_open_staples = []
-    for i in temp_formula:
+    for i in temp:
         if ''.join(i).isdigit():
             continue
         expression_in_staples = i[0]
         for j in i[1:]:
-            if form_of_formula == 'pdnf':
-                expression_in_staples = logic_and(expression_in_staples, j)
-            else:
+            if form != 'pdnf':
                 expression_in_staples = logic_or(expression_in_staples, j)
+            else:
+                expression_in_staples = logic_and(expression_in_staples, j)
         formula_after_open_staples.append(expression_in_staples)
-    if form_of_formula == 'pdnf':
+    if form == 'pdnf':
         if check_on_extra_implicants_pdnf(formula_after_open_staples):
             return []
         else:
             return True
     else:
-        if check_on_extra_implicants_pcnf(formula_after_open_staples):
+        if check_on_extra_pcnf(formula_after_open_staples):
             return []
         else:
             return True
 
 
 
-def translate_in_pdnf(formula):
-    output_fomula = []
-    if isinstance(formula, str):
-        print(formula)
+def in_pdnf(expr):
+    output = []
+    if isinstance(expr, str):
+        print(expr)
         return
-    elif len(formula) == 0:
+    elif len(expr) == 0:
         print(0)
         return
-    if len(formula[0]) == 1:
-        output_fomula.append('(')
-    for i in formula:
-        if len(i) == 1:
-            implicat = f'{" * ".join(i)}+'
-        else:
+    if len(expr[0]) == 1:
+        output.append('(')
+    for i in expr:
+        if len(i) != 1:
             implicat = f'({" * ".join(i)})+'
-        output_fomula.append(implicat)
-    if len(formula[0]) == 1:
-        output_fomula[-1] = output_fomula[-1][:-1] + ')'
-        print(''.join(output_fomula))
+        else:
+            implicat = f'{" * ".join(i)}+'
+        output.append(implicat)
+    if len(expr[0]) == 1:
+        output[-1] = output[-1][:-1] + ')'
+        print(''.join(output))
     else:
-        print(''.join(output_fomula)[:-1])
+        print(''.join(output)[:-1])
 
 
 
-def logic_or(first_argument, second_argument):
-    if first_argument == second_argument:
-        return first_argument
-    if first_argument.isdigit() and second_argument.isdigit():
-        return str(int(first_argument) or int(second_argument))
-    if first_argument[0] == 'x' or first_argument[0] == '!':
-        if second_argument == '1':
+def logic_or(first, second):
+    if first == second:
+        return first
+    if second.isdigit() and first.isdigit():
+        return str(int(first) or int(second))
+    if first[0] == 'x' or first[0] == '!':
+        if second == '1':
             return '1'
         else:
-            return first_argument
+            return first
     else:
-        if first_argument == '1':
-            return '1'
+        if first != '1':
+            return second
         else:
-            return second_argument
+            return '1'
